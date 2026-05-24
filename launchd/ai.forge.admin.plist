@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>ai.forge.admin</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/macstudio/code/tariqismail/forge-admin/.venv/bin/gunicorn</string>
+    <string>-k</string>
+    <string>gevent</string>
+    <string>-w</string>
+    <string>2</string>
+    <string>-b</string>
+    <string>127.0.0.1:5050</string>
+    <string>app:app</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/macstudio/code/tariqismail/forge-admin</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>FLASK_ENV</key>
+    <string>production</string>
+    <key>FLASK_SECRET_KEY</key>
+    <string>FkHv97K2nNuHq1aTGRwZYuNopgjheinRwM5GZIG7fl4</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/Users/macstudio/forge/forge-state/forge-admin.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/macstudio/forge/forge-state/forge-admin.log</string>
+</dict>
+</plist>
