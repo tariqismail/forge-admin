@@ -1,11 +1,11 @@
 from pathlib import Path
 
+import config
 from lib.state import read_json, write_json
-from config import PENDING_DRAFTS_FILE
 
 
 def load_drafts() -> tuple[list, str | None]:
-    data, error = read_json(PENDING_DRAFTS_FILE)
+    data, error = read_json(config.PENDING_DRAFTS_FILE)
     if error:
         return [], error
     if data is None:
@@ -37,7 +37,7 @@ def approve_draft(draft_id: str) -> str | None:
     if not found:
         return f"Draft {draft_id} not found"
 
-    return write_json(PENDING_DRAFTS_FILE, drafts)
+    return write_json(config.PENDING_DRAFTS_FILE, drafts)
 
 
 def reject_draft(draft_id: str, reason: str = "") -> str | None:
@@ -59,7 +59,7 @@ def reject_draft(draft_id: str, reason: str = "") -> str | None:
     if not found:
         return f"Draft {draft_id} not found"
 
-    return write_json(PENDING_DRAFTS_FILE, drafts)
+    return write_json(config.PENDING_DRAFTS_FILE, drafts)
 
 
 def edit_draft(draft_id: str, new_text: str) -> str | None:
@@ -79,4 +79,4 @@ def edit_draft(draft_id: str, new_text: str) -> str | None:
     if not found:
         return f"Draft {draft_id} not found"
 
-    return write_json(PENDING_DRAFTS_FILE, drafts)
+    return write_json(config.PENDING_DRAFTS_FILE, drafts)

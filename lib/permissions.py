@@ -1,8 +1,8 @@
 import re
 from pathlib import Path
 
+import config
 from lib.state import read_json, write_json, touch_sentinel
-from config import PERMISSIONS_FILE, RELOAD_SENTINEL
 
 JID_PATTERN = re.compile(r"^\d{10,15}@s\.whatsapp\.net$")
 
@@ -16,7 +16,7 @@ def validate_jid(jid: str) -> str | None:
 
 
 def load_permissions() -> tuple[dict, str | None]:
-    data, error = read_json(PERMISSIONS_FILE)
+    data, error = read_json(config.PERMISSIONS_FILE)
     if error:
         return {"roles": {}, "people": {}}, error
     if data is None:
@@ -55,7 +55,7 @@ def add_person(name: str, jid: str, role: str, project: str | None = None) -> st
     if jid_error:
         return jid_error
 
-    data, error = read_json(PERMISSIONS_FILE)
+    data, error = read_json(config.PERMISSIONS_FILE)
     if error:
         return f"Cannot read permissions.json: {error}"
     if data is None:
@@ -77,16 +77,16 @@ def add_person(name: str, jid: str, role: str, project: str | None = None) -> st
     people.append(entry)
     data["people"] = people
 
-    write_error = write_json(PERMISSIONS_FILE, data)
+    write_error = write_json(config.PERMISSIONS_FILE, data)
     if write_error:
         return write_error
 
-    touch_sentinel(RELOAD_SENTINEL)
+    touch_sentinel(config.RELOAD_SENTINEL)
     return None
 
 
 def remove_person(jid: str) -> str | None:
-    data, error = read_json(PERMISSIONS_FILE)
+    data, error = read_json(config.PERMISSIONS_FILE)
     if error:
         return f"Cannot read permissions.json: {error}"
     if data is None:
@@ -99,9 +99,9 @@ def remove_person(jid: str) -> str | None:
     if len(data["people"]) == original_len:
         return f"Person with JID {jid} not found"
 
-    write_error = write_json(PERMISSIONS_FILE, data)
+    write_error = write_json(config.PERMISSIONS_FILE, data)
     if write_error:
         return write_error
 
-    touch_sentinel(RELOAD_SENTINEL)
+    touch_sentinel(config.RELOAD_SENTINEL)
     return None

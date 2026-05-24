@@ -5,7 +5,7 @@ from pathlib import Path
 
 from flask_login import UserMixin
 
-from config import ADMIN_STATE_FILE
+import config
 
 
 class AdminUser(UserMixin):
@@ -15,17 +15,17 @@ class AdminUser(UserMixin):
 
 
 def _load_state() -> dict:
-    if not ADMIN_STATE_FILE.exists():
+    if not config.ADMIN_STATE_FILE.exists():
         return {"tokens": {}, "sessions": {}}
     try:
-        return json.loads(ADMIN_STATE_FILE.read_text())
+        return json.loads(config.ADMIN_STATE_FILE.read_text())
     except (json.JSONDecodeError, OSError):
         return {"tokens": {}, "sessions": {}}
 
 
 def _save_state(state: dict):
     from lib.state import write_json
-    write_json(ADMIN_STATE_FILE, state)
+    write_json(config.ADMIN_STATE_FILE, state)
 
 
 def generate_invite_token(name: str) -> str:

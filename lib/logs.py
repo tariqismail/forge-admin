@@ -2,14 +2,14 @@ import json
 from datetime import date, datetime
 from pathlib import Path
 
-from config import TRIAGE_LOG_FILE, AGENT_LOG_FILE, BRIDGE_LOG_FILE
+import config
 
 
 def get_triage_entries(limit: int = 50) -> list[dict]:
-    if not TRIAGE_LOG_FILE.exists():
+    if not config.TRIAGE_LOG_FILE.exists():
         return []
     try:
-        lines = TRIAGE_LOG_FILE.read_text().strip().split("\n")
+        lines = config.TRIAGE_LOG_FILE.read_text().strip().split("\n")
         entries = []
         for line in reversed(lines):
             if len(entries) >= limit:
@@ -33,12 +33,12 @@ def get_triage_entries(limit: int = 50) -> list[dict]:
 
 
 def get_today_session_count() -> int:
-    if not AGENT_LOG_FILE.exists():
+    if not config.AGENT_LOG_FILE.exists():
         return 0
     today_str = date.today().isoformat()
     try:
         count = 0
-        with open(AGENT_LOG_FILE, "r") as f:
+        with open(config.AGENT_LOG_FILE, "r") as f:
             for line in f:
                 if today_str in line:
                     count += 1
@@ -48,10 +48,10 @@ def get_today_session_count() -> int:
 
 
 def get_bridge_status() -> dict:
-    if not BRIDGE_LOG_FILE.exists():
+    if not config.BRIDGE_LOG_FILE.exists():
         return {"status": "unknown", "last_activity": None}
     try:
-        lines = BRIDGE_LOG_FILE.read_text().strip().split("\n")
+        lines = config.BRIDGE_LOG_FILE.read_text().strip().split("\n")
         if not lines:
             return {"status": "unknown", "last_activity": None}
         last_line = lines[-1]
