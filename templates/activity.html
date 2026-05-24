@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% set active_tab = "activity" %}
+{% set page_title = "Activity" %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Activity</h1>
+</div>
+
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-value">{{ stats.total }}</div>
+    <div class="stat-label">Messages today</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ stats.skip }}</div>
+    <div class="stat-label">Skipped</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ stats.draft }}</div>
+    <div class="stat-label">Drafted</div>
+  </div>
+</div>
+
+<ul class="timeline">
+  {% for entry in triage %}
+  <li class="timeline-item">
+    <div class="timeline-icon {{ entry.action }}">
+      {% if entry.action == 'skip' %}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      {% elif entry.action == 'notify' %}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+      {% elif entry.action == 'draft' %}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      {% endif %}
+    </div>
+    <div class="timeline-content">
+      <div class="timeline-text">
+        <strong>{{ entry.sender[:25] }}{% if entry.chat and entry.chat != entry.sender %} <span style="color:var(--text-muted)">in {{ entry.chat[:25] }}</span>{% endif %}</strong>
+        {% if entry.action == 'skip' %}— {{ entry.get('reason', 'no action needed') }}
+        {% elif entry.action == 'notify' %}— forwarded to Telegram. {{ entry.get('reason', '') }}
+        {% elif entry.action == 'draft' %}— Forge drafted a reply. {{ entry.get('reason', '') }}
+        {% endif %}
+      </div>
+      {% if entry.get('model') %}
+      <div class="timeline-detail">{{ entry.model }} ({{ entry.get('latency_ms', '?') }}ms)</div>
+      {% endif %}
+    </div>
+    <span class="timeline-time">{{ entry.get('ts', '')[-8:-3] if entry.get('ts') else '' }}</span>
+  </li>
+  {% endfor %}
+  {% if not triage %}
+  <li class="timeline-item">
+    <div class="timeline-content">
+      <div class="timeline-text">No activity yet today. Forge will log triage decisions here as messages come in.</div>
+    </div>
+  </li>
+  {% endif %}
+</ul>
+{% endblock %}

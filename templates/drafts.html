@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+{% set active_tab = "drafts" %}
+{% set page_title = "Drafts" %}
+{% set pending_count = pending | length %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Drafts</h1>
+  <p class="page-subtitle">Messages Forge wrote on your behalf, waiting for you to review</p>
+</div>
+
+{% if error %}
+<div class="error-banner">
+  <strong>pending_drafts.json has an error:</strong> {{ error }}
+  <a href="{{ url_for('raw_editor', filename='pending_drafts.json') }}">View raw</a>
+</div>
+{% endif %}
+
+{% if pending %}
+<h2 class="section-title">Pending ({{ pending | length }})</h2>
+{% for draft in pending %}
+<div class="draft-card">
+  <div class="draft-header">
+    <div class="avatar {{ draft.for_role or 'staff' }}">{{ (draft.group_name or 'U')[0] | upper }}</div>
+    <div class="draft-info">
+      <div class="draft-name">{{ draft.group_name or draft.group_jid }}</div>
+      <div class="draft-meta">
+        <span>{{ draft.for_role or 'unknown' | title }}</span>
+        {% if draft.source %}<span>via {{ draft.source }}</span>{% endif %}
+      </div>
+    </div>
+    <div class="draft-time">{{ draft.created_at[:16] if draft.created_at else '' }}</div>
+  </div>
+  <div class="draft-body">{{ draft.draft }}</div>
+  <div class="draft-actions">
+    <form method="POST" action="{{ url_for('draft_approve', draft_id=draft.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-approve" type="submit">Send</button>
+    </form>
+    <form method="POST" action="{{ url_for('draft_reject', draft_id=draft.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-secondary" type="submit">Discard</button>
+    </form>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="empty-state" style="margin-bottom: 32px">
+  <p>No pending drafts. Forge will notify you when new messages need approval.</p>
+</div>
+{% endif %}
+
+{% if sent %}
+<h2 class="section-title">Sent ({{ sent | length }})</h2>
+{% for draft in sent %}
+<div class="history-item">
+  <div class="history-avatar {{ draft.for_role or 'staff' }}">{{ (draft.group_name or 'U')[0] | upper }}</div>
+  <div class="history-info">
+    <div class="history-text">{{ draft.draft[:80] }}{% if draft.draft | length > 80 %}...{% endif %}</div>
+    <div class="history-time">{{ draft.created_at[:16] if draft.created_at else '' }}</div>
+  </div>
+  <span class="status-sent">Sent</span>
+</div>
+{% endfor %}
+{% endif %}
+
+{% if discarded %}
+<h2 class="section-title">Discarded ({{ discarded | length }})</h2>
+{% for draft in discarded %}
+<div class="history-item">
+  <div class="history-avatar {{ draft.for_role or 'staff' }}">{{ (draft.group_name or 'U')[0] | upper }}</div>
+  <div class="history-info">
+    <div class="history-text">{{ draft.draft[:80] }}{% if draft.draft | length > 80 %}...{% endif %}</div>
+    <div class="history-time">{{ draft.created_at[:16] if draft.created_at else '' }}</div>
+  </div>
+  <span class="status-discarded">Discarded</span>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

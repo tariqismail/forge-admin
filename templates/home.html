@@ -1,0 +1,118 @@
+{% extends "layout.html" %}
+{% set active_tab = "home" %}
+{% set pending_count = drafts | length %}
+
+{% block status_strip %}
+<div class="status-strip {% if bridge.status == 'error' %}error{% elif sessions_today > 12 %}warning{% endif %}" role="status" aria-live="polite">
+  {% if bridge.status == 'healthy' %}
+    <span class="status-text">&#10003; Everything's running smoothly</span>
+  {% elif bridge.status == 'error' %}
+    <span class="status-text">&#9888; Bridge has issues</span>
+  {% else %}
+    <span class="status-text">? Bridge status unknown</span>
+  {% endif %}
+  <span class="status-detail">{{ sessions_today }} of 15 sessions used today</span>
+</div>
+{% endblock %}
+
+{% block content %}
+{% if perm_error %}
+<div class="error-banner">
+  <strong>permissions.json has an error:</strong> {{ perm_error }}
+  <a href="{{ url_for('raw_editor', filename='permissions.json') }}">View raw</a>
+</div>
+{% endif %}
+
+<div class="desktop-grid">
+  <div class="primary-content">
+
+    <section aria-labelledby="drafts-heading">
+      <div class="section-header">
+        <h2 class="section-title" id="drafts-heading">Needs your approval</h2>
+        <span class="section-meta">{{ drafts | length }} message{{ 's' if drafts | length != 1 }}</span>
+      </div>
+
+      {% if drafts %}
+        {% for draft in drafts %}
+        <div class="message-card-wrapper">
+          <div class="message-card">
+            <div class="message-header">
+              <div class="avatar {{ draft.for_role or 'staff' }}">{{ (draft.group_name or 'U')[0] | upper }}</div>
+              <div class="message-info">
+                <div class="message-name">{{ draft.group_name or draft.group_jid }}</div>
+                <div class="message-role">{{ draft.for_role or 'unknown' | title }}</div>
+              </div>
+              <div class="message-time">{{ draft.created_at[:16] if draft.created_at else '' }}</div>
+            </div>
+            <div class="message-body">{{ draft.draft }}</div>
+            <div class="message-actions">
+              <form method="POST" action="{{ url_for('draft_approve', draft_id=draft.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-approve" type="submit">Send</button>
+              </form>
+              <form method="POST" action="{{ url_for('draft_reject', draft_id=draft.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-secondary" type="submit">Discard</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          <p>All clear. No pending drafts.</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <section aria-labelledby="budget-heading">
+      <div class="section-header">
+        <h2 class="section-title" id="budget-heading">Usage today</h2>
+      </div>
+      <div class="budget-card">
+        <div class="budget-header">
+          <span class="budget-label">Claude conversations</span>
+          <span class="budget-count">{{ sessions_today }} <span>/ 15</span></span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill {% if sessions_today > 12 %}warn{% else %}ok{% endif %}" style="width: {{ (sessions_today / 15 * 100) | int }}%"></div>
+        </div>
+        <p class="budget-hint">
+          {% if sessions_today < 10 %}Plenty of room.{% elif sessions_today < 13 %}Getting busy.{% else %}Running low.{% endif %}
+          Resets at midnight.
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <div class="activity-section">
+    <section aria-labelledby="activity-heading">
+      <div class="section-header">
+        <h2 class="section-title" id="activity-heading">Recent activity</h2>
+        <span class="section-meta">Today</span>
+      </div>
+      <ul class="activity-feed">
+        {% for entry in triage[:8] %}
+        <li class="activity-item">
+          <span class="activity-dot {{ entry.action }}"></span>
+          <div class="activity-content">
+            <div class="activity-text">
+              <strong>{{ entry.sender[:20] }}{% if entry.chat and entry.chat != entry.sender %} <span style="color:var(--text-muted)">in {{ entry.chat[:20] }}</span>{% endif %}</strong>
+              {% if entry.action == 'skip' %}— no action needed{% elif entry.action == 'notify' %}— forwarded to Telegram{% elif entry.action == 'draft' %}— Forge drafted a reply{% endif %}
+            </div>
+            <div class="activity-time">{{ entry.ts[-9:-4] if entry.ts else '' }}</div>
+          </div>
+        </li>
+        {% endfor %}
+        {% if not triage %}
+        <li class="activity-item">
+          <div class="activity-content">
+            <div class="activity-text">No activity yet today.</div>
+          </div>
+        </li>
+        {% endif %}
+      </ul>
+    </section>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "layout.html" %}
+{% set active_tab = "people" %}
+{% set page_title = "People" %}
+
+{% block content %}
+{% if perm_error %}
+<div class="error-banner">
+  <strong>permissions.json has an error:</strong> {{ perm_error }}
+  <a href="{{ url_for('raw_editor', filename='permissions.json') }}">View raw</a>
+</div>
+{% endif %}
+
+<div class="page-header">
+  <h1 class="page-title">People</h1>
+  <p class="page-subtitle">Manage who can talk to Forge and what they can do</p>
+</div>
+
+<details class="roles-guide">
+  <summary>What can each role do?</summary>
+  <div class="roles-grid">
+    <div class="role-card">
+      <span class="role-pill commander">Commander</span>
+      <p>Full control. Forge answers everything and takes any action. Replies go directly.</p>
+    </div>
+    <div class="role-card">
+      <span class="role-pill staff">Staff</span>
+      <p>Can ask about TB projects, schedule, general questions. Can create notes, reminders, and action items. Cannot access financials, send emails, or post to groups. Replies go directly.</p>
+    </div>
+    <div class="role-card">
+      <span class="role-pill client">Client</span>
+      <p>Can only ask about their own project status. Cannot take any actions. All replies are drafted for your approval first.</p>
+    </div>
+    <div class="role-card">
+      <span class="role-pill vendor">Vendor</span>
+      <p>Can ask about PO status, payments, and deliveries. Cannot take any actions. All replies are drafted for your approval first.</p>
+    </div>
+    <div class="role-card">
+      <span class="role-pill personal">Personal</span>
+      <p>Can ask general questions and about schedule. Can create reminders. All replies are drafted for your approval first.</p>
+    </div>
+  </div>
+</details>
+
+<h2 class="section-title">Active ({{ permissions.people | length }} people)</h2>
+
+{% for jid, person in permissions.people.items() %}
+<div class="person-card">
+  <div class="person-avatar" style="background: var(--{% if person.role == 'commander' %}purple{% elif person.role == 'staff' %}blue{% elif person.role == 'client' %}green{% elif person.role == 'vendor' %}amber{% else %}text-muted{% endif %})">{{ person.name[0] | upper }}</div>
+  <div class="person-info">
+    <div class="person-name">{{ person.name }}</div>
+    <div class="person-jid">{{ jid }}</div>
+    {% if person.get('deny') %}<div class="scope-tag">Cannot: {{ person.deny | join(', ') }}</div>{% endif %}
+    {% if person.get('project') %}<div class="scope-tag">Scoped to: {{ person.project }}</div>{% endif %}
+  </div>
+  <span class="role-pill {{ person.role }}">{{ person.role }}</span>
+  {% if person.role != 'commander' %}
+  <div class="person-actions">
+    <form method="POST" action="{{ url_for('people_remove', jid=jid) }}" onsubmit="return confirm('Remove {{ person.name }} from Forge?')">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="icon-btn danger" type="submit" aria-label="Remove {{ person.name }}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      </button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% endfor %}
+
+{% if not permissions.people %}
+<div class="empty-state">
+  <p>No one can talk to Forge yet. Add your first person below.</p>
+</div>
+{% endif %}
+
+<div class="add-form">
+  <div class="add-form-title">Add a person</div>
+  <form method="POST" action="{{ url_for('people_add') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-row">
+      <input class="form-input" type="text" name="name" placeholder="Name" required aria-label="Name">
+      <input class="form-input" type="text" name="jid" placeholder="971XXXXXXXXX@s.whatsapp.net" required aria-label="WhatsApp JID" style="font-family: var(--font-mono); font-size: 13px;">
+    </div>
+    <div class="form-row">
+      <select class="form-select" name="role" required aria-label="Role">
+        <option value="">Choose role...</option>
+        {% for role_name in permissions.roles.keys() %}
+          {% if role_name != 'commander' %}
+          <option value="{{ role_name }}">{{ role_name | title }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      <input class="form-input" type="text" name="project" placeholder="Project scope (optional)" aria-label="Project scope">
+      <button class="btn btn-primary" type="submit">Add</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
