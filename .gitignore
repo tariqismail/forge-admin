@@ -7,3 +7,16 @@ dist/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Runtime state (user-specific, not committed)
+forge-state/
+forge-rules/permissions.json
+forge-rules/truebuild_rules.yaml
+forge-rules/forge_commander_whitelist.yaml
+
+# Secrets (NEVER commit)
+.secrets
+*.bak-*
+
+# Logs
+*.log

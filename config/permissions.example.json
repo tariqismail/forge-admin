@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "_doc": "Copy to ~/forge/forge-rules/permissions.json and add your people. See docs/PERMISSIONS.md.",
+  "reply_modes": {
+    "auto": "Forge replies directly in the chat.",
+    "draft": "Forge drafts a reply and sends it to your Telegram for one-tap approval before delivery.",
+    "notify": "Forge does not reply; it only notifies you on Telegram."
+  },
+  "roles": {
+    "commander": {
+      "_desc": "Full control \u2014 equivalent to you.",
+      "answer": "all",
+      "action": "all",
+      "reply": "auto"
+    },
+    "staff": {
+      "_desc": "Internal team. Can query TB and create internal items; anything outbound is drafted for your approval.",
+      "answer": [
+        "tb_project_status",
+        "schedule",
+        "general"
+      ],
+      "action": [
+        "create_note",
+        "create_reminder",
+        "create_action_item",
+        "tb_read"
+      ],
+      "deny_action": [
+        "email_send",
+        "group_post",
+        "financial",
+        "git_push"
+      ],
+      "reply": "auto"
+    },
+    "client": {
+      "_desc": "External project client. Forge answers status about THEIR project only; everything else is drafted for you.",
+      "answer": [
+        "own_project_status"
+      ],
+      "scope": "own_project",
+      "action": [],
+      "reply": "draft"
+    },
+    "vendor": {
+      "_desc": "Supplier. Forge can relay PO/payment/delivery status; commitments are drafted for you.",
+      "answer": [
+        "po_status",
+        "payment_status",
+        "delivery_status"
+      ],
+      "action": [],
+      "reply": "draft"
+    },
+    "personal": {
+      "_desc": "Family / friends. Replies are drafted for your approval by default.",
+      "answer": [
+        "general",
+        "schedule"
+      ],
+      "action": [
+        "create_reminder"
+      ],
+      "reply": "draft"
+    }
+  },
+  "people": [
+    {
+      "jid": "9715XXXXXXXX@s.whatsapp.net",
+      "name": "Sana",
+      "role": "personal"
+    },
+    {
+      "jid": "9715YYYYYYYY@s.whatsapp.net",
+      "name": "Site Manager",
+      "role": "staff",
+      "deny": [
+        "financial"
+      ]
+    },
+    {
+      "jid": "9715ZZZZZZZZ@s.whatsapp.net",
+      "name": "Villa 249 Client",
+      "role": "client",
+      "project": "RMA001"
+    }
+  ]
+}
