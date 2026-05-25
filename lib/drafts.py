@@ -25,19 +25,43 @@ def approve_draft(draft_id: str) -> str | None:
     if error:
         return error
 
-    found = False
+    target_draft = None
     for d in drafts:
         if d.get("id") == draft_id:
             if d.get("status") != "pending":
                 return f"Draft {draft_id} is not pending (status: {d.get('status')})"
             d["status"] = "approved"
-            found = True
+            target_draft = d
             break
 
-    if not found:
+    if not target_draft:
         return f"Draft {draft_id} not found"
 
-    return write_json(config.PENDING_DRAFTS_FILE, drafts)
+    write_error = write_json(config.PENDING_DRAFTS_FILE, drafts)
+    if write_error:
+        return write_error
+
+    _deliver_draft(target_draft)
+    return None
+
+
+def _deliver_draft(draft: dict):
+    import subprocess
+    chat_jid = draft.get("group_jid", "")
+    text = draft.get("draft", "")
+    wacli_store = draft.get("wacli_store", "")
+
+    if not chat_jid or not text:
+        return
+
+    cmd = ["wacli", "send", "text", "--to", chat_jid, "--message", text]
+    if wacli_store:
+        cmd = ["wacli", "--store", wacli_store] + cmd[1:]
+
+    try:
+        subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+    except Exception:
+        pass
 
 
 def reject_draft(draft_id: str, reason: str = "") -> str | None:

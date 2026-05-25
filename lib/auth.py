@@ -75,4 +75,4 @@ def load_user_by_session(session_id: str) -> AdminUser | None:
 
 
 def is_tailscale_request(remote_addr: str) -> bool:
-    return remote_addr.startswith("100.")
+    return remote_addr.startswith("100.") or remote_addr == "127.0.0.1"
