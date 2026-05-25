@@ -48,6 +48,12 @@
             <div class="trigger-text">{{ draft.trigger_text }}</div>
             {% endif %}
             <div class="message-body" id="text-{{ draft.id }}">{{ draft.draft }}</div>
+            {% if draft.context %}
+            <details class="draft-context">
+              <summary>Why this was drafted</summary>
+              <p>{{ draft.context }}</p>
+            </details>
+            {% endif %}
             <form class="draft-edit-form" id="edit-{{ draft.id }}" style="display:none" method="POST" action="{{ url_for('draft_edit_and_send', draft_id=draft.id) }}">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <textarea class="draft-textarea" name="text">{{ draft.draft }}</textarea>

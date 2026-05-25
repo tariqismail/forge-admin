@@ -260,6 +260,11 @@ section { margin-bottom: 32px; }
 /* TRIGGER TEXT (original message that prompted the draft) */
 .trigger-text { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; padding: 8px 12px; background: var(--page-bg); border-radius: var(--radius-sm); border-left: 3px solid var(--border); font-style: italic; }
 
+/* DRAFT CONTEXT (reasoning shown separately) */
+.draft-context { margin-top: 8px; font-size: 12px; }
+.draft-context summary { color: var(--text-muted); cursor: pointer; font-weight: 500; }
+.draft-context p { color: var(--text-muted); margin-top: 4px; padding: 6px 10px; background: var(--page-bg); border-radius: var(--radius-sm); line-height: 1.5; }
+
 /* DRAFT EDIT */
 .draft-edit-form { margin-top: 8px; }
 .draft-textarea { width: 100%; padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--page-bg); color: var(--text-primary); font-size: 14px; font-family: var(--font-sans); line-height: 1.6; resize: vertical; min-height: 100px; outline: none; margin-bottom: 12px; }
