@@ -160,6 +160,25 @@ def draft_edit(draft_id):
     return redirect(url_for("drafts"))
 
 
+@app.route("/drafts/<draft_id>/edit-and-send", methods=["POST"])
+@login_required
+def draft_edit_and_send(draft_id):
+    new_text = request.form.get("text", "").strip()
+    if not new_text:
+        flash("Draft text cannot be empty", "error")
+        return redirect(url_for("home"))
+    error = edit_draft(draft_id, new_text)
+    if error:
+        flash(error, "error")
+        return redirect(url_for("home"))
+    error = approve_draft(draft_id)
+    if error:
+        flash(error, "error")
+    else:
+        flash("Edited draft sent", "success")
+    return redirect(url_for("home"))
+
+
 @app.route("/activity")
 @login_required
 def activity():

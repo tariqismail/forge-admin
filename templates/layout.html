@@ -91,6 +91,21 @@
       document.querySelector('meta[name="theme-color"]').content =
         next === 'dark' ? '#0a0a0b' : '#ffffff';
     }
+
+    function startEdit(id) {
+      document.getElementById('text-' + id).style.display = 'none';
+      document.getElementById('actions-' + id).style.display = 'none';
+      document.getElementById('edit-' + id).style.display = 'block';
+      const ta = document.querySelector('#edit-' + id + ' textarea');
+      ta.style.height = ta.scrollHeight + 'px';
+      ta.focus();
+    }
+
+    function cancelEdit(id) {
+      document.getElementById('text-' + id).style.display = '';
+      document.getElementById('actions-' + id).style.display = '';
+      document.getElementById('edit-' + id).style.display = 'none';
+    }
   </script>
   {% block scripts %}{% endblock %}
 </body>

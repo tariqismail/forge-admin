@@ -47,6 +47,9 @@ def approve_draft(draft_id: str) -> str | None:
 
 def _deliver_draft(draft: dict):
     import subprocess
+    import logging
+    log = logging.getLogger(__name__)
+
     chat_jid = draft.get("group_jid", "")
     text = draft.get("draft", "")
     wacli_store = draft.get("wacli_store", "")
@@ -54,14 +57,19 @@ def _deliver_draft(draft: dict):
     if not chat_jid or not text:
         return
 
-    cmd = ["wacli", "send", "text", "--to", chat_jid, "--message", text]
+    wacli_bin = "/opt/homebrew/bin/wacli"
+    cmd = [wacli_bin, "send", "text", "--to", chat_jid, "--message", text]
     if wacli_store:
-        cmd = ["wacli", "--store", wacli_store] + cmd[1:]
+        cmd = [wacli_bin, "--store", wacli_store, "send", "text", "--to", chat_jid, "--message", text]
 
     try:
-        subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-    except Exception:
-        pass
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        if result.returncode == 0:
+            log.info("Draft delivered to %s", chat_jid)
+        else:
+            log.error("wacli send failed: %s", result.stderr[:200])
+    except Exception as e:
+        log.error("Draft delivery error: %s", e)
 
 
 def reject_draft(draft_id: str, reason: str = "") -> str | None:

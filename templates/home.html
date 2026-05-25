@@ -37,19 +37,31 @@
         <div class="message-card-wrapper">
           <div class="message-card">
             <div class="message-header">
-              <div class="avatar {{ draft.for_role or 'staff' }}">{{ (draft.group_name or 'U')[0] | upper }}</div>
+              <div class="avatar {{ draft.for_role or 'staff' }}">{{ (draft.sender or draft.group_name or 'U')[0] | upper }}</div>
               <div class="message-info">
-                <div class="message-name">{{ draft.group_name or draft.group_jid }}</div>
-                <div class="message-role">{{ draft.for_role or 'unknown' | title }}</div>
+                <div class="message-name">{{ draft.sender or draft.group_name or draft.group_jid }}</div>
+                <div class="message-role">{{ draft.group_name or '' }}</div>
               </div>
-              <div class="message-time">{{ draft.created_at[:16] if draft.created_at else '' }}</div>
+              <div class="message-time">{{ draft.created_at[11:16] if draft.created_at and draft.created_at|length > 16 else '' }}</div>
             </div>
-            <div class="message-body">{{ draft.draft }}</div>
-            <div class="message-actions">
+            {% if draft.trigger_text %}
+            <div class="trigger-text">{{ draft.trigger_text }}</div>
+            {% endif %}
+            <div class="message-body" id="text-{{ draft.id }}">{{ draft.draft }}</div>
+            <form class="draft-edit-form" id="edit-{{ draft.id }}" style="display:none" method="POST" action="{{ url_for('draft_edit_and_send', draft_id=draft.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <textarea class="draft-textarea" name="text">{{ draft.draft }}</textarea>
+              <div class="message-actions">
+                <button class="btn btn-approve" type="submit">Send</button>
+                <button class="btn btn-secondary" type="button" onclick="cancelEdit('{{ draft.id }}')">Cancel</button>
+              </div>
+            </form>
+            <div class="message-actions" id="actions-{{ draft.id }}">
               <form method="POST" action="{{ url_for('draft_approve', draft_id=draft.id) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button class="btn btn-approve" type="submit">Send</button>
               </form>
+              <button class="btn btn-secondary" type="button" onclick="startEdit('{{ draft.id }}')">Edit</button>
               <form method="POST" action="{{ url_for('draft_reject', draft_id=draft.id) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button class="btn btn-secondary" type="submit">Discard</button>

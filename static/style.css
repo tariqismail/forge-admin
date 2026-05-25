@@ -257,6 +257,14 @@ section { margin-bottom: 32px; }
 .draft-actions { display: flex; gap: 8px; }
 .draft-actions form { display: inline; }
 
+/* TRIGGER TEXT (original message that prompted the draft) */
+.trigger-text { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; padding: 8px 12px; background: var(--page-bg); border-radius: var(--radius-sm); border-left: 3px solid var(--border); font-style: italic; }
+
+/* DRAFT EDIT */
+.draft-edit-form { margin-top: 8px; }
+.draft-textarea { width: 100%; padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--page-bg); color: var(--text-primary); font-size: 14px; font-family: var(--font-sans); line-height: 1.6; resize: vertical; min-height: 100px; outline: none; margin-bottom: 12px; }
+.draft-textarea:focus { border-color: var(--blue); }
+
 /* RAW EDITOR */
 .raw-editor { width: 100%; padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--page-bg); color: var(--text-primary); font-family: var(--font-mono); font-size: 13px; line-height: 1.5; resize: vertical; outline: none; }
 .raw-editor:focus { border-color: var(--blue); }
