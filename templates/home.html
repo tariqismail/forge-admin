@@ -16,6 +16,8 @@
 {% endblock %}
 
 {% block content %}
+<div hx-get="/" hx-trigger="every 15s" hx-select=".desktop-grid" hx-target=".desktop-grid" hx-swap="outerHTML">
+</div>
 {% if perm_error %}
 <div class="error-banner">
   <strong>permissions.json has an error:</strong> {{ perm_error }}
@@ -47,7 +49,7 @@
             {% if draft.trigger_text %}
             <div class="trigger-text">{{ draft.trigger_text }}</div>
             {% endif %}
-            <div class="message-body" id="text-{{ draft.id }}">{{ draft.draft }}</div>
+            <div class="message-body" id="text-{{ draft.id }}">{{ draft.draft|clean_draft }}</div>
             {% if draft.context %}
             <details class="draft-context">
               <summary>Why this was drafted</summary>
@@ -56,7 +58,7 @@
             {% endif %}
             <form class="draft-edit-form" id="edit-{{ draft.id }}" style="display:none" method="POST" action="{{ url_for('draft_edit_and_send', draft_id=draft.id) }}">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <textarea class="draft-textarea" name="text">{{ draft.draft }}</textarea>
+              <textarea class="draft-textarea" name="text">{{ draft.draft|clean_draft }}</textarea>
               <div class="message-actions">
                 <button class="btn btn-approve" type="submit">Send</button>
                 <button class="btn btn-secondary" type="button" onclick="cancelEdit('{{ draft.id }}')">Cancel</button>

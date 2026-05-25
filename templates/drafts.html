@@ -4,6 +4,8 @@
 {% set pending_count = pending | length %}
 
 {% block content %}
+<div hx-get="/drafts" hx-trigger="every 15s" hx-select=".page-header ~ *" hx-target=".page-header ~ *" hx-swap="outerHTML">
+</div>
 <div class="page-header">
   <h1 class="page-title">Drafts</h1>
   <p class="page-subtitle">Messages Forge wrote on your behalf, waiting for you to review</p>
@@ -34,7 +36,7 @@
   {% if draft.trigger_text %}
   <div class="trigger-text">{{ draft.trigger_text }}</div>
   {% endif %}
-  <div class="message-body" id="text-{{ draft.id }}">{{ draft.draft }}</div>
+  <div class="message-body" id="text-{{ draft.id }}">{{ draft.draft|clean_draft }}</div>
   {% if draft.context %}
   <details class="draft-context">
     <summary>Why this was drafted</summary>
@@ -43,7 +45,7 @@
   {% endif %}
   <form class="draft-edit-form" id="edit-{{ draft.id }}" style="display:none" method="POST" action="{{ url_for('draft_edit_and_send', draft_id=draft.id) }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <textarea class="draft-textarea" name="text">{{ draft.draft }}</textarea>
+    <textarea class="draft-textarea" name="text">{{ draft.draft|clean_draft }}</textarea>
     <div class="message-actions">
       <button class="btn btn-approve" type="submit">Send</button>
       <button class="btn btn-secondary" type="button" onclick="cancelEdit('{{ draft.id }}')">Cancel</button>

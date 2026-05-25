@@ -24,6 +24,19 @@ else:
 
 csrf = CSRFProtect(app)
 login_manager = LoginManager(app)
+
+import re as _re
+
+@app.template_filter('clean_draft')
+def clean_draft_filter(text):
+    """Strip markdown formatting from draft text for clean display."""
+    text = _re.sub(r'\*\*(.+?)\*\*', r'\1', text)
+    text = _re.sub(r'\*(.+?)\*', r'\1', text)
+    text = _re.sub(r'`(.+?)`', r'\1', text)
+    text = _re.sub(r'^>\s?', '', text, flags=_re.MULTILINE)
+    text = _re.sub(r'^#+\s*', '', text, flags=_re.MULTILINE)
+    text = _re.sub(r'^\s*[-*]\s', '', text, flags=_re.MULTILINE)
+    return text.strip()
 login_manager.login_view = "login"
 
 
